@@ -1,5 +1,6 @@
 import argparse
 from BagWriter import BagWriter
+import yaml
 
 def print_help():
     print('-'*50)
@@ -29,6 +30,7 @@ def main():
     topic_offset = ''
     sensor_types = ['camera', 'lidar', 'imu', 'gnss']
     calib_folder = 'calibration'
+    transforms_file = 'frames.yaml'
 
     sensor2topics = {
         'camera': {
@@ -48,6 +50,21 @@ def main():
     }
 
     bagHnadler = BagWriter(args.path, args.name, calib_folder)
+
+    stream = open(args.path + '/'+ args.name + '/' + calib_folder + '/' + transforms_file, "r")
+    transforms = yaml.load_all(stream)
+    for content in transforms:
+        for key, val in content.items():
+            if(key == 'transforms'):
+                bagHnadler.write_tf(val)
+
+                #for transform in val:
+                #    print(transform['label'])
+                #    print(transform['parent'])
+                #    print(transform['tran'])
+                #    print(transform['rot'])
+                #print('\n\n')
+
 
     for type in sensor2topics.keys():
         if type in sensor_types:
